@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
-from django.db.models import Avg, Round
+from django.db.models import Avg
+from django.db.models.functions import Round
 
 from .models import Product
 from .serializers import ProductSerializer
