@@ -9,9 +9,12 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
 colorama==0.4.6
+cron-descriptor==1.4.5
 Django==6.0.7
+django-celery-beat==2.9.0
 django-filter==26.1
 django-redis==7.0.0
+django-timezone-field==7.2.2
 djangorestframework==3.17.1
 idna==3.18
 iniconfig==2.3.0
@@ -26,6 +29,7 @@ psycopg2-binary==2.9.12
 Pygments==2.20.0
 pytest==9.1.1
 pytest-django==4.12.0
+python-crontab==3.3.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
 redis==8.0.1
