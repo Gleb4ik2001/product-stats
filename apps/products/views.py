@@ -63,27 +63,25 @@ class AvgPriceByCategoryView(APIView):
 
     def get(self, request: HttpRequest):
         # Пробуем получить из кэша
-        try:
-            cached_stats = cache.get(CACHE_KEY_AVG_PRICE)
-            if cached_stats is not None:
-                return Response({
-                    "source": "cache",
-                    "data": cached_stats
-                }, status=status.HTTP_200_OK)
-        except Exception:
-            # Если кэша нет — считаем агрегат средствами ORM
-            stats = (
-                Product.objects.values('category')
-                .annotate(avg_price=Round(Avg('price'), 2))
-                .order_by('category')
-            )
-
-            result = {item['category']: float(item['avg_price']) for item in stats}
-
-            # Записываем в кэш Redis (600 секунд)
-            cache.set(CACHE_KEY_AVG_PRICE, result, timeout=600)
-
+        cached_stats = cache.get(CACHE_KEY_AVG_PRICE)
+        if cached_stats is not None:
             return Response({
-                "source": "database",
-                "data": result
+                "source": "cache",
+                "data": cached_stats
             }, status=status.HTTP_200_OK)
+        # Если кэша нет — считаем агрегат средствами ORM
+        stats = (
+            Product.objects.values('category')
+            .annotate(avg_price=Round(Avg('price'), 2))
+            .order_by('category')
+        )
+
+        result = {item['category']: float(item['avg_price']) for item in stats}
+
+        # Записываем в кэш Redis (600 секунд)
+        cache.set(CACHE_KEY_AVG_PRICE, result, timeout=600)
+
+        return Response({
+            "source": "database",
+            "data": result
+        }, status=status.HTTP_200_OK)
