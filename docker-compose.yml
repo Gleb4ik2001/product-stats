@@ -42,7 +42,7 @@ services:
   celery_worker:
     build: .
     container_name: product_stats_celery_worker
-    command: celery -A core worker --loglevel=info
+    command: celery -A settings.celery worker --loglevel=info
     volumes:
       - .:/app
     env_file:
@@ -54,7 +54,7 @@ services:
   celery_beat:
     build: .
     container_name: product_stats_celery_beat
-    command: celery -A core beat --loglevel=info
+    command: celery -A settings.celery beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app
     env_file:
