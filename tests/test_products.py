@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
 from rest_framework.test import APIClient
-from apps.products.models import Product
-from apps.products.services import process_and_normalize_data, calculate_avg_price_pandas
+from products.models import Product
+from products.services import process_and_normalize_data, calculate_avg_price_pandas
 
 
 @pytest.mark.django_db
