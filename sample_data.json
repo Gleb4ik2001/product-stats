@@ -1,0 +1,8 @@
+[
+  {"external_id": "ext-101", "name": "Laptop Pro 15", "category": "Electronics", "price": 1200.50, "updated_at": "2026-07-20T10:00:00Z"},
+  {"external_id": "ext-102", "name": "Wireless Mouse", "category": "Electronics", "price": 25.00, "updated_at": "2026-07-21T11:30:00Z"},
+  {"external_id": "ext-103", "name": "Mechanical Keyboard", "category": "Electronics", "price": 85.90, "updated_at": "2026-07-22T09:15:00Z"},
+  {"external_id": "ext-104", "name": "Office Chair", "category": "Furniture", "price": 150.00, "updated_at": "2026-07-19T14:20:00Z"},
+  {"external_id": "ext-105", "name": "Standing Desk", "category": "Furniture", "price": 450.00, "updated_at": "2026-07-23T08:00:00Z"},
+  {"external_id": "ext-106", "name": "Coffee Maker", "category": "Appliances", "price": 79.99, "updated_at": "2026-07-24T07:45:00Z"}
+]
