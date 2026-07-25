@@ -1,8 +1,9 @@
 import logging
 from typing import Optional
+
 from celery import shared_task
 
-from .services import fetch_raw_data, process_and_normalize_data, import_products_to_db
+from .services import fetch_raw_data, import_products_to_db, process_and_normalize_data
 
 logger = logging.getLogger(__name__)
 

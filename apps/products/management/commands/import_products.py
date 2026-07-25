@@ -1,5 +1,9 @@
 from django.core.management.base import BaseCommand
-from products.services import fetch_raw_data, process_and_normalize_data, import_products_to_db
+from products.services import (
+    fetch_raw_data,
+    import_products_to_db,
+    process_and_normalize_data,
+)
 
 
 class Command(BaseCommand):
@@ -7,13 +11,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--url',
+            "--url",
             type=str,
-            help='Необязательный HTTP/HTTPS URL источника данных (JSON)'
+            help="Необязательный HTTP/HTTPS URL источника данных (JSON)",
         )
 
     def handle(self, *args, **options):
-        url = options.get('url')
+        url = options.get("url")
         self.stdout.write(self.style.NOTICE("Запуск процесса импорта..."))
 
         try:
@@ -25,6 +29,4 @@ class Command(BaseCommand):
                 self.style.SUCCESS(f"Успешно обработано и сохранено записей: {count}")
             )
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Ошибка при импорте данных: {e}")
-            )
+            self.stdout.write(self.style.ERROR(f"Ошибка при импорте данных: {e}"))

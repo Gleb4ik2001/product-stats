@@ -1,11 +1,11 @@
-from django.http import HttpRequest
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
 from django.db.models import Avg
 from django.db.models.functions import Round
+from django.http import HttpRequest
+from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Product
 from .serializers import ProductSerializer
@@ -14,7 +14,7 @@ from .services import CACHE_KEY_AVG_PRICE
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
     max_page_size = 100
 
 
@@ -30,9 +30,9 @@ class ProductListView(APIView):
     def get(self, request):
         queryset = Product.objects.all()
 
-        category = request.query_params.get('category')
-        price_min = request.query_params.get('price_min')
-        price_max = request.query_params.get('price_max')
+        category = request.query_params.get("category")
+        price_min = request.query_params.get("price_min")
+        price_max = request.query_params.get("price_max")
 
         if category:
             queryset = queryset.filter(category__iexact=category.strip())
@@ -44,8 +44,10 @@ class ProductListView(APIView):
                 queryset = queryset.filter(price__lte=float(price_max))
         except ValueError:
             return Response(
-                {"error": "Параметры price_min и price_max должны быть валидными числами."},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "error": "Параметры price_min и price_max должны быть валидными числами."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         paginator = StandardResultsSetPagination()
@@ -65,23 +67,21 @@ class AvgPriceByCategoryView(APIView):
         # Пробуем получить из кэша
         cached_stats = cache.get(CACHE_KEY_AVG_PRICE)
         if cached_stats is not None:
-            return Response({
-                "source": "cache",
-                "data": cached_stats
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {"source": "cache", "data": cached_stats}, status=status.HTTP_200_OK
+            )
         # Если кэша нет — считаем агрегат средствами ORM
         stats = (
-            Product.objects.values('category')
-            .annotate(avg_price=Round(Avg('price'), 2))
-            .order_by('category')
+            Product.objects.values("category")
+            .annotate(avg_price=Round(Avg("price"), 2))
+            .order_by("category")
         )
 
-        result = {item['category']: float(item['avg_price']) for item in stats}
+        result = {item["category"]: float(item["avg_price"]) for item in stats}
 
         # Записываем в кэш Redis (600 секунд)
         cache.set(CACHE_KEY_AVG_PRICE, result, timeout=600)
 
-        return Response({
-            "source": "database",
-            "data": result
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"source": "database", "data": result}, status=status.HTTP_200_OK
+        )

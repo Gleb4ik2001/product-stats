@@ -1,12 +1,13 @@
+import hashlib
 import json
 import logging
-import hashlib
-import requests
-import pandas as pd
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
+import pandas as pd
+import requests
 from django.core.cache import cache
 from django.db import transaction
+
 from .models import Product
 
 logger = logging.getLogger(__name__)
@@ -54,36 +55,36 @@ def process_and_normalize_data(raw_data: List[Dict[str, Any]]) -> pd.DataFrame:
     df = pd.DataFrame(raw_data)
 
     # Проверяем минимальный набор необходимых полей
-    required_cols = {'name', 'category', 'price', 'updated_at'}
+    required_cols = {"name", "category", "price", "updated_at"}
     if not required_cols.issubset(df.columns):
         missing = required_cols - set(df.columns)
         raise ValueError(f"Во входных данных отсутствуют обязательные поля: {missing}")
 
     # Нормализация текстовых полей
-    df['name'] = df['name'].astype(str).str.strip()
-    df['category'] = df['category'].astype(str).str.strip()
+    df["name"] = df["name"].astype(str).str.strip()
+    df["category"] = df["category"].astype(str).str.strip()
 
     # Генерация external_id если его нет во внешнем источнике
-    if 'external_id' not in df.columns:
-        df['external_id'] = None
+    if "external_id" not in df.columns:
+        df["external_id"] = None
 
     def ensure_external_id(row):
-        val = row['external_id']
+        val = row["external_id"]
         if pd.isna(val) or not str(val).strip():
             # Хэшируем name + category как fallback ключ
-            raw_key = f"{row['name']}_{row['category']}".encode('utf-8')
+            raw_key = f"{row['name']}_{row['category']}".encode("utf-8")
             return hashlib.md5(raw_key).hexdigest()
         return str(val).strip()
 
-    df['external_id'] = df.apply(ensure_external_id, axis=1)
+    df["external_id"] = df.apply(ensure_external_id, axis=1)
 
     # Приведение типов и очистка ошибок
-    df['price'] = pd.to_numeric(df['price'], errors='coerce')
-    df['updated_at'] = pd.to_datetime(df['updated_at'], errors='coerce')
+    df["price"] = pd.to_numeric(df["price"], errors="coerce")
+    df["updated_at"] = pd.to_datetime(df["updated_at"], errors="coerce")
 
     # Дропаем битые записи (где цена, дата, название или категория не валидны)
     initial_count = len(df)
-    df = df.dropna(subset=['external_id', 'name', 'category', 'price', 'updated_at'])
+    df = df.dropna(subset=["external_id", "name", "category", "price", "updated_at"])
     dropped_count = initial_count - len(df)
 
     if dropped_count > 0:
@@ -100,7 +101,7 @@ def calculate_avg_price_pandas(df: pd.DataFrame) -> Dict[str, float]:
     if df.empty:
         return {}
 
-    grouped = df.groupby('category')['price'].mean().round(2)
+    grouped = df.groupby("category")["price"].mean().round(2)
     return grouped.to_dict()
 
 
@@ -116,16 +117,16 @@ def import_products_to_db(df: pd.DataFrame) -> int:
 
     with transaction.atomic():
         for _, row in df.iterrows():
-            dt = row['updated_at'].to_pydatetime()
+            dt = row["updated_at"].to_pydatetime()
 
             Product.objects.update_or_create(
-                external_id=row['external_id'],
+                external_id=row["external_id"],
                 defaults={
-                    'name': row['name'],
-                    'category': row['category'],
-                    'price': row['price'],
-                    'updated_at': dt,
-                }
+                    "name": row["name"],
+                    "category": row["category"],
+                    "price": row["price"],
+                    "updated_at": dt,
+                },
             )
             imported_count += 1
 
