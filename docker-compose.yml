@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,17 +20,14 @@ services:
     ports:
       - "6379:6379"
 
-  web:
+  migrate:
     build: .
-    container_name: product_stats_web
+    container_name: product_stats_migrate
     command: >
       sh -c "python manage.py migrate &&
-             python manage.py import_products &&
-             python manage.py runserver 0.0.0.0:8000"
+             python manage.py import_products"
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
     env_file:
       - .env
     depends_on:
@@ -38,6 +35,20 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+
+  web:
+    build: .
+    container_name: product_stats_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   celery_worker:
     build: .
@@ -48,8 +59,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - web
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
 
   celery_beat:
     build: .
@@ -60,7 +73,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - celery_worker
+      migrate:
+        condition: service_completed_successfully
+      celery_worker:
+        condition: service_started
 
 volumes:
   postgres_data:
