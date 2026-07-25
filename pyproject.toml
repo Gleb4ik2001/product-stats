@@ -1,0 +1,38 @@
+[tool.ruff]
+target-version = "py313"
+
+# Длина строки
+line-length = 88
+
+# Исключения из проверок
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    ".env",
+    "migrations",
+    "__pycache__",
+    "manage.py",
+]
+
+[tool.ruff.lint]
+# E/W - ошибки и предупреждения PEP 8 (pycodestyle)
+# F - ошибки Pyflakes (неиспользуемые импорты, переменные и т.д.)
+# I - автосортировка импортов (isort)
+# DJ - специфика для Django
+# B - отлавливание распространенных багов (flake8-bugbear)
+select = ["E", "W", "F", "I", "DJ", "B"]
+
+# Правила, которые игнорируем (при необходимости)
+ignore = [
+    "E501", # Игнорировать превышение длины строки, если Ruff сформатировал её сам
+]
+
+[tool.ruff.lint.isort]
+# Автоматическое определение ваших Django-приложений для корректной группировки импортов
+known-first-party = ["apps", "settings"]
+
+[tool.ruff.format]
+# Включаем форматирование кавычек в стиле PEP 8 / Black
+quote-style = "double"
+indent-style = "space"
