@@ -141,6 +141,6 @@ docker compose exec web pytest
 ```
 ### Спасибо за внимание!
 
-**[Telegram](t.me/daybreak09)**
+**[Telegram](https://t.me/daybreak09)**
 
 **[WhatsApp](https://wa.me/+77789405226)**
